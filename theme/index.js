@@ -28,6 +28,10 @@ export const theme = {
         surface: tokens.colors.surface,
         error: tokens.colors.error,
         onSurface: tokens.colors.text,
+        secondaryContainer: tokens.colors.primary,
+        onSecondaryContainer: tokens.colors.surface,
+        outline: tokens.colors.primary,
+        outlineVariant: tokens.colors.primary,
     },
     roundness: tokens.radius.md,
 };

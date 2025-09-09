@@ -9,7 +9,12 @@ export default {
         assetBundlePatterns: ["**/*"],
         plugins: ["expo-router"],
         extra: { router: { origin: false } },
-        ios: { supportsTablet: true },
+        ios: {
+            supportsTablet: true, "infoPlist": {
+                "NSCameraUsageDescription": "Necesitamos usar la cámara para tomar fotos del restaurante.",
+                "NSPhotoLibraryUsageDescription": "Necesitamos acceder a tus fotos para subir una imagen del restaurante."
+            }
+        },
         android: {},
         web: { bundler: "metro" }
     }

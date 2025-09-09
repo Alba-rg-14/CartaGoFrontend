@@ -92,12 +92,10 @@ export default function ResetConfirm() {
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: tokens.spacing(3),
-        paddingBottom: tokens.spacing(2),
-        gap: tokens.spacing(2),
-        alignSelf: "center",
-        width: "100%",
-        maxWidth: 380,
+        flex: 1,
+        padding: tokens.spacing(4),
+        justifyContent: "center",
+        backgroundColor: tokens.colors.surface,
     },
     title: {
         color: tokens.colors.primary,
