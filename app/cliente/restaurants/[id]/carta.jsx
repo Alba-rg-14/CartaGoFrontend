@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Image, ScrollView, StyleSheet, TouchableOpacity, Share } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import {
     ActivityIndicator, Text, Button, Icon, useTheme,
     Portal, Dialog, Snackbar, TextInput, Chip
@@ -97,6 +97,16 @@ export default function CartaScreen() {
         };
     }
 
+    const [backConfirmVisible, setBackConfirmVisible] = useState(false);
+
+    const handleBackPress = () => {
+        if (hasSala) {
+            setBackConfirmVisible(true);
+        } else {
+            router.back();
+        }
+    };
+
     // ---- Handlers sala de pago
     const handleCreateSala = async () => {
         try {
@@ -134,7 +144,7 @@ export default function CartaScreen() {
 
     const handleShareCode = async () => {
         if (!sala?.codigo) return;
-        setCodeVisible(true); // mostramos popup igualmente
+        setCodeVisible(true);
     };
 
     const handleJoinSala = async () => {
@@ -178,7 +188,7 @@ export default function CartaScreen() {
                 salaId: String(currentSalaId),
                 restauranteNombre: info?.nombre ?? "",
                 restauranteImagen: info?.imagen ?? "",
-                v: String(Date.now()), // fuerza remount por si Expo reusa pantalla
+                v: String(Date.now()),
             },
         });
     };
@@ -194,10 +204,8 @@ export default function CartaScreen() {
             const resumen = await FlujoPagoAPI.getResumen(Number(sala.id));
             const lista = Array.isArray(resumen?.comensales) ? resumen.comensales : [];
             setComensalesSala(lista);
-            // Por defecto seleccionamos al cliente actual si está
             setSelectedIds((prev) => {
                 const mine = clienteId ? [Number(clienteId)] : [];
-                // filtra a los que existan en la sala
                 return mine.filter(id => lista.some(c => c.id === id));
             });
             setSelectVisible(true);
@@ -241,7 +249,6 @@ export default function CartaScreen() {
     };
 
 
-    // acciones del popup
     const copyCode = async () => {
         if (!sala?.codigo) return;
         await Clipboard.setStringAsync(String(sala.codigo));
@@ -254,6 +261,41 @@ export default function CartaScreen() {
         } catch { }
     };
 
+    useFocusEffect(
+        React.useCallback(() => {
+            if (!sala?.id) return;
+
+            let cancelled = false;
+
+            const check = async () => {
+                try {
+                    const data = await FlujoPagoAPI.getResumen(Number(sala.id));
+                    if (cancelled) return;
+
+                    if (String(data?.estado).toLowerCase() === "cerrada") {
+                        router.replace({
+                            pathname: "/cliente/restaurants/[id]/instrucciones",
+                            params: {
+                                id: String(id),
+                                salaId: String(sala.id),
+                                restauranteNombre: info?.nombre ?? "",
+                                restauranteImagen: info?.imagen ?? "",
+                                v: String(Date.now()),
+                            },
+                        });
+                    }
+                } catch (e) {
+                }
+            };
+
+            check();
+            const t = setInterval(check, 2000);
+
+            return () => { cancelled = true; clearInterval(t); };
+        }, [sala?.id, id, info?.nombre, info?.imagen])
+    );
+
+
 
 
     if (loading) {
@@ -264,7 +306,7 @@ export default function CartaScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: tokens.colors.surface }} edges={["top"]}>
             <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 140 }]}>
                 {/* Back */}
-                <TouchableOpacity onPress={() => router.back()} style={styles.backRow}
+                <TouchableOpacity onPress={handleBackPress} style={styles.backRow}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                     <Icon source="chevron-left" size={22} color={tokens.colors.primary} />
                     <Text style={styles.backText}>Volver a info del restaurante</Text>
@@ -301,7 +343,6 @@ export default function CartaScreen() {
                                         subtitle: p.descripcionBreve || p.descripcion || "",
                                     }}
                                     onDetails={() => router.push(`/cliente/restaurants/${id}/plato/${p.id}`)}
-                                    // botón + DESHABILITADO hasta que haya sala (lo activaremos cuando implementemos add)
                                     rightSlot={
                                         hasSala ? (
                                             <TouchableOpacity
@@ -414,39 +455,37 @@ export default function CartaScreen() {
 
                         <View style={{ height: 10 }} />
 
-                        {selectLoading ? (
-                            <ActivityIndicator />
-                        ) : (
-                            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                                {comensalesSala.length === 0 ? (
-                                    <Text style={{ color: tokens.colors.muted }}>Aún no hay participantes en la sala.</Text>
-                                ) : (
-                                    comensalesSala.map((c) => {
-                                        const selected = selectedIds.includes(c.id);
-                                        return (
-                                            <Chip
-                                                key={c.id}
-                                                compact
-                                                mode="flat"
-                                                style={{
-                                                    marginRight: 6, marginBottom: 6,
-                                                    backgroundColor: selected ? tokens.colors.primary : "#FFF",
-                                                    borderColor: selected ? tokens.colors.primary : "#E5E7EB",
-                                                    borderWidth: 1,
-                                                }}
-                                                textStyle={{ color: selected ? "#FFF" : "#111827", fontWeight: "700" }}
-                                                icon={({ size }) => (
-                                                    <Icon source="account" size={size - 2} color={selected ? "#FFF" : "#6B7280"} />
-                                                )}
-                                                onPress={() => toggleSelect(c.id)}
-                                            >
-                                                {c.nombre}
-                                            </Chip>
-                                        );
-                                    })
-                                )}
-                            </View>
-                        )}
+
+                        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                            {comensalesSala.length === 0 ? (
+                                <Text style={{ color: tokens.colors.muted }}>Aún no hay participantes en la sala.</Text>
+                            ) : (
+                                comensalesSala.map((c) => {
+                                    const selected = selectedIds.includes(c.id);
+                                    return (
+                                        <Chip
+                                            key={c.id}
+                                            compact
+                                            mode="flat"
+                                            style={{
+                                                marginRight: 6, marginBottom: 6,
+                                                backgroundColor: selected ? tokens.colors.primary : "#FFF",
+                                                borderColor: selected ? tokens.colors.primary : "#E5E7EB",
+                                                borderWidth: 1,
+                                            }}
+                                            textStyle={{ color: selected ? "#FFF" : "#111827", fontWeight: "700" }}
+                                            icon={({ size }) => (
+                                                <Icon source="account" size={size - 2} color={selected ? "#FFF" : "#6B7280"} />
+                                            )}
+                                            onPress={() => toggleSelect(c.id)}
+                                        >
+                                            {c.nombre}
+                                        </Chip>
+                                    );
+                                })
+                            )}
+                        </View>
+
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={() => setSelectVisible(false)} disabled={selectLoading}>Cancelar</Button>
@@ -455,6 +494,33 @@ export default function CartaScreen() {
                         </Button>
                     </Dialog.Actions>
                 </Dialog>
+                <Dialog
+                    visible={backConfirmVisible}
+                    onDismiss={() => setBackConfirmVisible(false)}
+                    style={{ borderRadius: 10 }}
+                >
+                    <Dialog.Title>Tienes una sala de pago activa</Dialog.Title>
+                    <Dialog.Content>
+                        <Text style={{ color: tokens.colors.muted }}>
+                            Mientras estés en una sala, no puedes volver al listado de restaurantes.
+                            Ve a <Text style={{ fontWeight: "800", color: tokens.colors.primary }}>Detalles del pedido</Text>
+                            para gestionarla o cerrarla.
+                        </Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={() => setBackConfirmVisible(false)}>Seguir aquí</Button>
+                        <Button
+                            mode="contained"
+                            onPress={() => {
+                                setBackConfirmVisible(false);
+                                handleOpenDetalles();  //pantalla de pedido
+                            }}
+                        >
+                            Ir a Detalles
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+
 
 
                 <Snackbar

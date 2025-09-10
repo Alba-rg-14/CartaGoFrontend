@@ -15,7 +15,11 @@ export default {
                 "NSPhotoLibraryUsageDescription": "Necesitamos acceder a tus fotos para subir una imagen del restaurante."
             }
         },
-        android: {},
+        android: {
+            "package": "com.albaruiz.cartago",
+            "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
+            "softwareKeyboardLayoutMode": "resize"
+        },
         web: { bundler: "metro" }
     }
 };

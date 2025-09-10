@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import {
     SafeAreaView,
-    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import {
     Text,
@@ -25,7 +24,7 @@ import { tokens } from "../../theme";
 import PillSwitch from "../../components/ui/PillSwitch";
 
 export default function Register() {
-    const insets = useSafeAreaInsets();
+
 
     const [authTab, setAuthTab] = useState("register"); // login | register
     const [nombre, setNombre] = useState("");
@@ -79,10 +78,7 @@ export default function Register() {
             >
                 <ScrollView
                     keyboardShouldPersistTaps="handled"
-                    contentContainerStyle={[
-                        styles.container,
-                        { paddingBottom: insets.bottom + tokens.spacing(2) },
-                    ]}
+                    contentContainerStyle={styles.container}
                 >
                     <View style={styles.card}>
                         {/* Toggle Login / Registro (pastilla deslizante) */}
@@ -156,21 +152,11 @@ export default function Register() {
                             <Button
                                 mode="contained"
                                 onPress={onSubmit}
-                                contentStyle={{
-                                    height: 56,
-                                    alignItems: "center",
-                                    justifyContent: "center",
-
-                                }}
+                                contentStyle={{ height: 56, justifyContent: "center", width: "100%", paddingHorizontal: 0, marginLeft: 20 }}
                                 labelStyle={{
-                                    fontSize: 18,
-                                    fontWeight: "700",
-                                    textAlign: "center",
-                                    width: "100%",
-                                    marginTop: 10,
-                                    marginLeft: 25,
+                                    fontSize: 18, fontWeight: "700", textAlign: "center", width: "100%",
                                 }}
-                                style={[styles.cta, { paddingHorizontal: 0 }]} uppercase={false}
+                                style={{ alignSelf: "center", width: "100%", maxWidth: 280, marginTop: tokens.spacing(1) }} uppercase={false}
                             >
                                 Registrarme
                             </Button>
@@ -187,7 +173,7 @@ export default function Register() {
                     </Snackbar>
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
@@ -223,7 +209,7 @@ const styles = StyleSheet.create({
         borderRadius: 999,
         alignSelf: "center",
         width: "100%",
-        maxWidth: 260,
+        maxWidth: 280,
         marginTop: tokens.spacing(1),
     },
     btnContent: { height: 56, justifyContent: "center" },

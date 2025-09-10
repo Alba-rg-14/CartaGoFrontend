@@ -1,5 +1,5 @@
 // app/auth/login.jsx
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import {
     View,
     Image,
@@ -10,14 +10,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, TextInput, Button, ActivityIndicator, Snackbar } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { login as doLogin } from "../../lib/auth";
 import { tokens } from "../../theme";
 import PillSwitch from "../../components/ui/PillSwitch";
 
 export default function Login() {
     const [authTab, setAuthTab] = useState("login"); // login | register
-    const [email, setEmail] = useState("");
+    const { email: emailFromParam } = useLocalSearchParams();
+    const [email, setEmail] = useState(typeof emailFromParam === "string" ? emailFromParam : "");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState("");
@@ -101,7 +102,7 @@ export default function Login() {
 
                         <Button
                             mode="text"
-                            onPress={() => router.push("/auth/reset")}
+                            onPress={() => router.push({ pathname: "/auth/reset-code", params: { email } })}
                             compact
                             style={{ alignSelf: "flex-start" }}
                             labelStyle={{ color: tokens.colors.primary }}

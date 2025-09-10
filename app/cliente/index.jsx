@@ -9,7 +9,7 @@ import {
     TextInput,
     Chip,
     ActivityIndicator,
-    useTheme,
+    useTheme, Button
 } from "react-native-paper";
 import { tokens } from "../../theme";
 import RestaurantPreviewCard from "../../components/ui/RestaurantPreviewCard";
@@ -45,7 +45,7 @@ export default function ClientHomeScreen() {
             setRecomendados([]);
         }
 
-        // ⚡ Abiertos ahora (sustituye al carrusel de 'Cerca de ti')
+        // Abiertos ahora 
         try {
             const opened = await RestauranteAPI.getAbiertosPreview();
             setAbiertosCarousel(opened);
@@ -129,6 +129,7 @@ export default function ClientHomeScreen() {
                 >
                     Busca un restaurante
                 </Text>
+
 
                 {/* Buscador */}
                 <TextInput
