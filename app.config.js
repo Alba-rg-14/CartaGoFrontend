@@ -18,8 +18,12 @@ export default {
         android: {
             "package": "com.albaruiz.cartago",
             "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
-            "softwareKeyboardLayoutMode": "resize"
+            "softwareKeyboardLayoutMode": "resize",
+            "config": {
+                "googleMaps": { "apiKey": "AIzaSyDufMjUxWdpDsAk-OTqapD7oHz_WTP4SHI" }
+            },
+
         },
-        web: { bundler: "metro" }
-    }
+        web: { bundler: "metro" },
+    },
 };
