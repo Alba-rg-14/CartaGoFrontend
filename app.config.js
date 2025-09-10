@@ -8,7 +8,10 @@ export default {
         userInterfaceStyle: "automatic",
         assetBundlePatterns: ["**/*"],
         plugins: ["expo-router"],
-        extra: { router: { origin: false } },
+        extra: {
+            eas: { projectId: "cbc21d9f-66a7-485b-92fc-35085f08e857" },
+            router: { origin: false }
+        },
         ios: {
             supportsTablet: true, "infoPlist": {
                 "NSCameraUsageDescription": "Necesitamos usar la cámara para tomar fotos del restaurante.",

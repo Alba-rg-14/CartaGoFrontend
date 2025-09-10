@@ -265,7 +265,7 @@ export default function PedidoScreen() {
                                 id: p.platoSalaId,
                                 nombre: p.platoNombre ?? "Plato",
                                 precio: p.precioActual ?? 0,
-                                imagen: null,
+                                imagen: p.imagen || null,
                                 subtitle: Array.isArray(p.participantes) ? `${p.participantes.length} comensal(es)` : "",
                             }}
                             // select visual de comensales

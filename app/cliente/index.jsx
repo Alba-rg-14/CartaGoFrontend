@@ -251,6 +251,9 @@ export default function ClientHomeScreen() {
                                 renderItem={({ item }) => (
                                     <RestaurantPreviewCard item={item} onPress={() => goInfo(item.id)} size="sm" />
                                 )}
+                                contentContainerStyle={{
+                                    paddingBottom: tokens.spacing(25),
+                                }}
                                 ListEmptyComponent={
                                     <Text style={{ color: tokens.colors.muted, marginTop: tokens.spacing(2) }}>
                                         Sin resultados.
